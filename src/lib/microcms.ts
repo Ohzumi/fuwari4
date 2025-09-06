@@ -23,8 +23,8 @@ export interface MicroCMSPost {
   };
   tags?: MicroCMSTag[];
   category?: MicroCMSCategory;
-  draft: boolean;
-  slug: string;
+  draft?: boolean;
+  slug?: string;
 }
 
 // microCMSのカテゴリの型定義
