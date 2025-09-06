@@ -35,7 +35,7 @@ export interface MicroCMSCategory {
   publishedAt: string;
   revisedAt: string;
   name: string;
-  slug: string;
+  slug?: string;
 }
 
 // microCMSのタグの型定義
@@ -46,7 +46,7 @@ export interface MicroCMSTag {
   publishedAt: string;
   revisedAt: string;
   name: string;
-  slug: string;
+  slug?: string;
 }
 
 // microCMSからブログ記事を取得
