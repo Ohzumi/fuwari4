@@ -88,6 +88,44 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm astro ...`           | Run CLI commands like `astro add`, `astro check`    |
 | `pnpm astro --help`        | Get help using the Astro CLI                        |
 
+## 🔧 microCMS Integration
+
+This blog supports both Markdown files and microCMS as content sources.
+
+### Setup microCMS
+
+1. Create a microCMS account and service
+2. Create the following APIs in your microCMS service:
+   - **posts** (ブログ記事)
+     - title: テキストフィールド
+     - content: リッチエディタ
+     - description: テキストフィールド (optional)
+     - image: 画像 (optional)
+     - tags: 複数コンテンツ参照 - tags (optional)
+     - category: コンテンツ参照 - categories (optional)
+     - draft: 真偽値
+     - slug: テキストフィールド
+   - **categories** (カテゴリ)
+     - name: テキストフィールド
+     - slug: テキストフィールド
+   - **tags** (タグ)
+     - name: テキストフィールド
+     - slug: テキストフィールド
+
+3. Copy `.env.example` to `.env` and fill in your microCMS credentials:
+   ```
+   MICROCMS_SERVICE_DOMAIN=your-service-domain
+   MICROCMS_API_KEY=your-api-key
+   ```
+
+### Content Sources
+
+The blog will automatically fetch and merge content from:
+- Local Markdown files in `src/content/posts/`
+- microCMS posts via API
+
+Both sources are combined and sorted by publication date.
+
 ## ✏️ Contributing
 
 Check out the [Contributing Guide](https://github.com/saicaca/fuwari/blob/main/CONTRIBUTING.md) for details on how to contribute to this project.

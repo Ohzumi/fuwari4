@@ -2,12 +2,31 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
+import { 
+  getMicroCMSPosts, 
+  getMicroCMSCategories, 
+  getMicroCMSTags,
+  convertMicroCMSPostToCollectionEntry,
+  type MicroCMSPost,
+  type MicroCMSCategory,
+  type MicroCMSTag
+} from "@/lib/microcms";
 
 // // Retrieve posts and sort them by publication date
 async function getRawSortedPosts() {
-	const allBlogPosts = await getCollection("posts", ({ data }) => {
+	// Markdownの記事を取得
+	const markdownPosts = await getCollection("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
+
+	// microCMSの記事を取得
+	const microCMSPosts = await getMicroCMSPosts();
+	const convertedMicroCMSPosts = microCMSPosts
+		.filter(post => import.meta.env.PROD ? !post.draft : true)
+		.map(convertMicroCMSPostToCollectionEntry);
+
+	// 両方の記事を結合
+	const allBlogPosts = [...markdownPosts, ...convertedMicroCMSPosts];
 
 	const sorted = allBlogPosts.sort((a, b) => {
 		const dateA = new Date(a.data.published);
@@ -52,15 +71,35 @@ export type Tag = {
 };
 
 export async function getTagList(): Promise<Tag[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
+	// Markdownの記事からタグを取得
+	const markdownPosts = await getCollection<"posts">("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
 
+	// microCMSの記事からタグを取得
+	const microCMSPosts = await getMicroCMSPosts();
+	const filteredMicroCMSPosts = microCMSPosts.filter(post => 
+		import.meta.env.PROD ? !post.draft : true
+	);
+
+	// microCMSから直接タグ一覧も取得
+	const microCMSTags = await getMicroCMSTags();
+
 	const countMap: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { tags: string[] } }) => {
+	
+	// Markdownの記事のタグをカウント
+	markdownPosts.forEach((post: { data: { tags: string[] } }) => {
 		post.data.tags.forEach((tag: string) => {
 			if (!countMap[tag]) countMap[tag] = 0;
 			countMap[tag]++;
+		});
+	});
+
+	// microCMSの記事のタグをカウント
+	filteredMicroCMSPosts.forEach((post: MicroCMSPost) => {
+		post.tags?.forEach((tag: MicroCMSTag) => {
+			if (!countMap[tag.name]) countMap[tag.name] = 0;
+			countMap[tag.name]++;
 		});
 	});
 
@@ -79,11 +118,24 @@ export type Category = {
 };
 
 export async function getCategoryList(): Promise<Category[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
+	// Markdownの記事からカテゴリを取得
+	const markdownPosts = await getCollection<"posts">("posts", ({ data }) => {
 		return import.meta.env.PROD ? data.draft !== true : true;
 	});
+
+	// microCMSの記事からカテゴリを取得
+	const microCMSPosts = await getMicroCMSPosts();
+	const filteredMicroCMSPosts = microCMSPosts.filter(post => 
+		import.meta.env.PROD ? !post.draft : true
+	);
+
+	// microCMSから直接カテゴリ一覧も取得
+	const microCMSCategories = await getMicroCMSCategories();
+
 	const count: { [key: string]: number } = {};
-	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
+	
+	// Markdownの記事のカテゴリをカウント
+	markdownPosts.forEach((post: { data: { category: string | null } }) => {
 		if (!post.data.category) {
 			const ucKey = i18n(I18nKey.uncategorized);
 			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
@@ -95,6 +147,18 @@ export async function getCategoryList(): Promise<Category[]> {
 				? post.data.category.trim()
 				: String(post.data.category).trim();
 
+		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
+	});
+
+	// microCMSの記事のカテゴリをカウント
+	filteredMicroCMSPosts.forEach((post: MicroCMSPost) => {
+		if (!post.category) {
+			const ucKey = i18n(I18nKey.uncategorized);
+			count[ucKey] = count[ucKey] ? count[ucKey] + 1 : 1;
+			return;
+		}
+
+		const categoryName = post.category.name.trim();
 		count[categoryName] = count[categoryName] ? count[categoryName] + 1 : 1;
 	});
 
