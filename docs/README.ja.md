@@ -83,3 +83,9 @@ draft: false
 | `pnpm new-post <filename>`          | 新しい投稿を作成                                    |
 | `pnpm astro ...`                    | `astro add`, `astro check` の様なコマンドを実行する際に使用 |
 | `pnpm astro --help`                 | Astro CLIのヘルプを表示                            |
+
+## 問題
+
+`pnpm-lock.yaml` ファイルで `postcss` のバージョンが `8.4.38` から `8.4.39` に更新され、`@babel/code-frame` が削除されるなど、いくつかの依存関係の変更が「問題」として報告されています。これらは pnpm が依存関係を管理する過程で発生する通常の変更であり、必ずしもエラーを示すものではありません。
+
+これらの変更は、依存関係ツリーの更新や解決の結果を反映したものです。プロジェクトの一貫性を保つために `pnpm install` を実行することで、`node_modules` ディレクトリが `pnpm-lock.yaml` ファイルの状態と同期され、潜在的な不整合が解消されます。

@@ -1,28 +1,33 @@
 ---
+import type { Page } from "astro";
 import type { CollectionEntry } from "astro:content";
-import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "./PostCard.astro";
 
-const { page } = Astro.props;
+interface Props {
+	page: Page<CollectionEntry<"posts">>;
+}
 
-let delay = 0;
-const interval = 50;
+const { page } = Astro.props;
+const posts = page.data;
 ---
-<div class="transition flex flex-col rounded-[var(--radius-large)] bg-[var(--card-bg)] py-1 md:py-0 md:bg-transparent md:gap-4 mb-4">
-    {page.data.map((entry: CollectionEntry<"posts">) => (
-        <PostCard
-                entry={entry}
-                title={entry.data.title}
-                tags={entry.data.tags}
-                category={entry.data.category}
-                published={entry.data.published}
-                updated={entry.data.updated}
-                url={getPostUrlBySlug(entry.slug)}
-                image={entry.data.image}
-                description={entry.data.description}
-                draft={entry.data.draft}
-                class:list="onload-animation"
-                style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
-        ></PostCard>
-    ))}
+
+<div class="w-full flex flex-col gap-4">
+	{posts.map((p, i) => {
+		return (
+			<PostCard
+				entry={p}
+				style={`animation-delay: calc(var(--content-delay) + ${i * 50}ms);`}
+				class="onload-animation"
+				title={p.data.title}
+				url={`/posts/${p.slug}/`}
+				published={p.data.published}
+				updated={p.data.updated}
+				tags={p.data.tags}
+				category={p.data.category || null}
+				image={p.data.image}
+				description={p.data.description}
+				draft={p.data.draft || false}
+			/>
+		);
+	})}
 </div>

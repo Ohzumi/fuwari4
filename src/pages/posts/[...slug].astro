@@ -26,25 +26,26 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 
 // microCMSの記事かどうかを判定
-const isMicroCMSPost = entry.id.startsWith('microcms-');
+const isMicroCMSPost = entry.id.startsWith("microcms-");
 let Content: any;
 let headings: any[] = [];
 let microCMSPost: MicroCMSPost | null = null;
+let remarkPluginFrontmatter: { words: number; minutes: number; };
 
 if (isMicroCMSPost) {
 	// microCMSの記事の場合
-	const microCMSId = entry.id.replace('microcms-', '');
+	const microCMSId = entry.id.replace("microcms-", "");
 	microCMSPost = await getMicroCMSPost(microCMSId);
 	// microCMSのコンテンツはHTMLなので、そのまま表示用のコンポーネントを作成
 	Content = () => null; // 後でHTMLを直接表示
+    remarkPluginFrontmatter = { words: 0, minutes: 0 };
 } else {
 	// Markdownの記事の場合
 	const rendered = await entry.render();
 	Content = rendered.Content;
 	headings = rendered.headings;
+    remarkPluginFrontmatter = rendered.remarkPluginFrontmatter;
 }
-
-const { remarkPluginFrontmatter } = await entry.render();
 
 const jsonLd = {
 	"@context": "https://schema.org",

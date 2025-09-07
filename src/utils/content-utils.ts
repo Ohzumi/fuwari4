@@ -2,14 +2,14 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
-import { 
-  getMicroCMSPosts, 
-  getMicroCMSCategories, 
-  getMicroCMSTags,
-  convertMicroCMSPostToCollectionEntry,
-  type MicroCMSPost,
-  type MicroCMSCategory,
-  type MicroCMSTag
+import {
+	getMicroCMSPosts,
+	getMicroCMSCategories,
+	getMicroCMSTags,
+	convertMicroCMSPostToCollectionEntry,
+	type MicroCMSPost,
+	type MicroCMSCategory,
+	type MicroCMSTag,
 } from "@/lib/microcms";
 
 // // Retrieve posts and sort them by publication date
@@ -22,7 +22,7 @@ async function getRawSortedPosts() {
 	// microCMSの記事を取得
 	const microCMSPosts = await getMicroCMSPosts();
 	const convertedMicroCMSPosts = microCMSPosts
-		.filter(post => import.meta.env.PROD ? !post.draft : true)
+		.filter((post) => (import.meta.env.PROD ? !post.draft : true))
 		.map(convertMicroCMSPostToCollectionEntry);
 
 	// 両方の記事を結合
@@ -78,15 +78,15 @@ export async function getTagList(): Promise<Tag[]> {
 
 	// microCMSの記事からタグを取得
 	const microCMSPosts = await getMicroCMSPosts();
-	const filteredMicroCMSPosts = microCMSPosts.filter(post => 
-		import.meta.env.PROD ? !post.draft : true
+	const filteredMicroCMSPosts = microCMSPosts.filter((post) =>
+		import.meta.env.PROD ? !post.draft : true,
 	);
 
 	// microCMSから直接タグ一覧も取得
 	const microCMSTags = await getMicroCMSTags();
 
 	const countMap: { [key: string]: number } = {};
-	
+
 	// Markdownの記事のタグをカウント
 	markdownPosts.forEach((post: { data: { tags: string[] } }) => {
 		post.data.tags.forEach((tag: string) => {
@@ -125,15 +125,15 @@ export async function getCategoryList(): Promise<Category[]> {
 
 	// microCMSの記事からカテゴリを取得
 	const microCMSPosts = await getMicroCMSPosts();
-	const filteredMicroCMSPosts = microCMSPosts.filter(post => 
-		import.meta.env.PROD ? !post.draft : true
+	const filteredMicroCMSPosts = microCMSPosts.filter((post) =>
+		import.meta.env.PROD ? !post.draft : true,
 	);
 
 	// microCMSから直接カテゴリ一覧も取得
 	const microCMSCategories = await getMicroCMSCategories();
 
 	const count: { [key: string]: number } = {};
-	
+
 	// Markdownの記事のカテゴリをカウント
 	markdownPosts.forEach((post: { data: { category: string | null } }) => {
 		if (!post.data.category) {
